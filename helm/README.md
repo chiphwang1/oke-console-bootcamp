@@ -36,7 +36,7 @@ Contract tests accept the learner's current `student.yaml` message and separatel
 
 ## Distribution
 
-The [GitHub learner repository](https://github.com/chiphwang1/oke-console-bootcamp) and [GitLab allocation project](https://gitlab.hap.demo.us-phoenix-1.oci.oraclecloud.com/luna-labs/ospa/oke-console-bootcamp) publish the same materials tag, `console-lab-2026-10-05.2`. Students clone this tag during step 1. Chart pins do not pin the repository revision. The new GitLab project supplies Luna's lab content and validates the allocation; it does not create a cluster.
+The [GitHub learner repository](https://github.com/chiphwang1/oke-console-bootcamp) and [GitLab allocation project](https://gitlab.hap.demo.us-phoenix-1.oci.oraclecloud.com/luna-labs/ospa/oke-console-bootcamp) publish the same materials tag, `console-lab-2026-10-05.3`. Students clone this tag during step 1. Chart pins do not pin the repository revision. The new GitLab project supplies Luna's lab content and validates the allocation; it does not create a cluster.
 
 Before distribution, verify unauthenticated GitHub access and matching tag commits. Before hands-on, learners launch their student environment. Chart archives are downloaded with `scripts/prepare-charts.sh`; `.lab-cache/` is not committed.
 

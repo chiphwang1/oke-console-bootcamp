@@ -1,6 +1,6 @@
 # Repository guidelines
 
-This standalone lab has a new GitHub repository and new GitLab project. Learners create OKE through the OCI Console. Luna allocates the student identity/compartment; GitLab validates that handoff. Do not add cluster provisioning to CI or Terraform.
+This standalone lab has a new GitHub repository and new GitLab project. Learners create OKE through the OCI Console with exactly three managed worker nodes. Luna allocates the student identity/compartment; GitLab validates that handoff. Do not add cluster provisioning to CI or Terraform.
 
 `charts/oke-mesh-app/files/server.py` is the training app, mounted in a published Python image. `helm/` pins upstream charts and holds values/dashboard settings. `scripts/` contains preflight, live validation, chart preparation, CI tool installation, and allocation checks. `kubernetes/` is a legacy maintainer render fixture; never apply it alongside Helm resources. `docs/` contains the cluster creation and instructor workflows.
 

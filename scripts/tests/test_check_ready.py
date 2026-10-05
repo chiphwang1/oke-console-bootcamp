@@ -31,11 +31,11 @@ elif args == ["get", "--raw=/version"]:
 elif args[:2] == ["get", "nodes"]:
     if os.environ.get("FAIL_AT") == "nodes":
         sys.exit(1)
-    print(os.environ.get("NODES", "worker-a True false\nworker-b True false"))
+    print(os.environ.get("NODES", "worker-a True false\nworker-b True false\nworker-c True false"))
 elif args == ["top", "nodes", "--no-headers"]:
     if os.environ.get("FAIL_AT") == "metrics":
         sys.exit(1)
-    print(os.environ.get("METRICS", "worker-a 60m 3% 3000Mi 22%\nworker-b 70m 4% 4000Mi 30%"))
+    print(os.environ.get("METRICS", "worker-a 60m 3% 3000Mi 22%\nworker-b 70m 4% 4000Mi 30%\nworker-c 50m 2% 2500Mi 18%"))
 else:
     raise AssertionError("Unexpected/mutating kubectl command: " + repr(args))
 '''
@@ -90,6 +90,8 @@ class CheckReady(unittest.TestCase):
         result, calls = self.run_check()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Preflight passed", result.stdout)
+        self.assertIn("Workers: 3/3 Ready", result.stdout)
+        self.assertIn("for all three workers", result.stdout)
         self.assertIn("Complete the chart downloads, archive checks, and connection confirmation", result.stdout)
         self.assertNotIn("separate instructor checks", result.stdout)
         self.assertEqual(len(calls), 5)
@@ -170,9 +172,10 @@ class CheckReady(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_unready_cordoned_or_wrong_node_count_fails(self):
-        for nodes in ("", "worker-a True false", "worker-a True false\nworker-b False false",
-                      "worker-a True false\nworker-b True true",
-                      "worker-a True false\nworker-b True false\nworker-c True false"):
+        for nodes in ("", "worker-a True false", "worker-a True false\nworker-b True false",
+                      "worker-a True false\nworker-b True false\nworker-c False false",
+                      "worker-a True false\nworker-b True false\nworker-c True true",
+                      "worker-a True false\nworker-b True false\nworker-c True false\nworker-d True false"):
             with self.subTest(nodes=nodes):
                 result, calls = self.run_check(NODES=nodes)
                 self.assertNotEqual(result.returncode, 0)
@@ -185,11 +188,13 @@ class CheckReady(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("FAIL", result.stderr)
 
-    def test_metrics_must_be_numeric_and_present_for_both_actual_nodes(self):
+    def test_metrics_must_be_numeric_and_present_for_all_three_actual_nodes(self):
+        first_two = "worker-a 10m 1% 100Mi 1%\nworker-b 20m 1% 100Mi 1%"
         for overrides in ({"FAIL_AT": "metrics"}, {"METRICS": ""},
                           {"METRICS": "worker-a 10m 1% 100Mi 1%"},
-                          {"METRICS": "worker-a 10m 1% 100Mi 1%\nworker-b <unknown> 1% 100Mi 1%"},
-                          {"METRICS": "worker-a 10m 1% 100Mi 1%\nother-node 20m 1% 100Mi 1%"}):
+                          {"METRICS": first_two},
+                          {"METRICS": first_two + "\nworker-c <unknown> 1% 100Mi 1%"},
+                          {"METRICS": first_two + "\nother-node 20m 1% 100Mi 1%"}):
             with self.subTest(overrides=overrides):
                 result, _ = self.run_check(**overrides)
                 self.assertNotEqual(result.returncode, 0)

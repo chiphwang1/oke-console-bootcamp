@@ -70,7 +70,7 @@ The first graph shows inbound requests/second. The second counts successfully sc
 
 For scrape health, use Table with `up{job=~"istiod|istio-workloads"}`; current targets should return `1`. In Kiali, check Mesh for the control plane, Workloads → `hello-oke` for health and pods, and its Envoy tab for service routing configuration. A warning during scale-out may clear after readiness and traffic recover; inspect its details rather than assuming every Degraded badge is a readiness issue.
 
-Reuse the chart's built-in, two-worker load generator for a bounded five-minute burst:
+Reuse the chart's built-in load generator with two concurrent request streams for a bounded five-minute burst:
 
 ```bash
 helm upgrade hello-oke ./charts/oke-mesh-app -n oke-lab --reuse-values \

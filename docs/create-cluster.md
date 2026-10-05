@@ -9,7 +9,7 @@ This is a required exercise in [step 1](../README.md#1-create-your-cluster-and-c
 3. Confirm the instructor has checked permissions to create OKE clusters, node pools, compute, network resources, and load balancers, and that your identity can install cluster-wide Helm resources. The allocation CI job checks read access; it cannot prove these create permissions.
 4. Confirm the desktop has OCI CLI, kubectl, Helm, Git, and curl. Desktop CLI authentication must use your session's OCI profile. The Console login alone does not configure the terminal.
 
-The instructor must reserve capacity for two workers, their boot volumes, one enhanced cluster, networking, and one flexible load balancer at 10 Mbps. This lab uses x86 images. Regional shape and Kubernetes availability must be rehearsed in the allocated region. See [Oracle's cluster creation permissions](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengpolicyconfig.htm).
+The instructor must reserve capacity for three workers, their boot volumes, one enhanced cluster, networking, and one flexible load balancer at 10 Mbps. This lab uses x86 images. Regional shape and Kubernetes availability must be rehearsed in the allocated region. See [Oracle's cluster creation permissions](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengpolicyconfig.htm).
 
 ## Create the cluster and network
 
@@ -29,14 +29,14 @@ The instructor must reserve capacity for two workers, their boot volumes, one en
 | OCPUs per node | **1** |
 | Memory per node | **16 GB** |
 | Image | An **OKE Worker Node Image**, x86, matching the selected Kubernetes version |
-| Node count | **2** |
+| Node count | **3** |
 | Boot volume | Keep the selected image's default size and Oracle-managed encryption |
 | SSH key | Leave unset; this lab uses Kubernetes access rather than node SSH |
 
 The inherited chart/preflight compatibility range is Kubernetes **1.32–1.36**. If 1.36 is unavailable, the instructor must select and rehearse another minor within that range, update `LAB_KUBERNETES_MINOR` in the new GitLab project, and confirm the desktop kubectl is within one server minor version. A shape being listed does not guarantee available capacity.
 
 4. Select **Next** and review the compartment, node count, and machine sizes. Keep the cluster type **Enhanced**; do not switch to Basic. Enhanced clusters support managed add-on configuration. [Oracle cluster types](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengcreatingenhancedclusters.htm).
-5. Select **Create cluster**. Record the name and inspect the work requests. Wait for the cluster to become **Active**, then open its node pool and confirm both nodes are **Active**. Work-request errors need instructor help; avoid submitting another cluster while the first request is unresolved.
+5. Select **Create cluster**. Record the name and inspect the work requests. Wait for the cluster to become **Active**, then open its node pool and confirm all three nodes are **Active**. Work-request errors need instructor help; avoid submitting another cluster while the first request is unresolved.
 
 ## Inspect what you created
 
@@ -57,4 +57,4 @@ The app's optional HPA and the required `kubectl top nodes` check need Metrics S
 
 OCI's Metrics Server add-on depends on Cert Manager. See [the Metrics Server dependency](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengworkingwithmetricsserver_cluster-add-on.htm) and [Console add-on installation](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/install-add-on.htm).
 
-Return to [configure access](../README.md#open-your-cluster-and-configure-access), generate kubeconfig, and run the read-only preflight. Continue only when both workers are Ready and have numeric CPU/memory metrics. An Active OCI status alone does not prove Kubernetes readiness.
+Return to [configure access](../README.md#open-your-cluster-and-configure-access), generate kubeconfig, and run the read-only preflight. Continue only when all three workers are Ready and have numeric CPU/memory metrics. An Active OCI status alone does not prove Kubernetes readiness.

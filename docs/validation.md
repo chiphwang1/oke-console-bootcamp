@@ -21,7 +21,7 @@ The local full Helm attempt could not reach `blob.istio.io`, including an IPv4 r
 
 ## New project configuration
 
-The new GitLab project is private, uses the existing approved shared runners, protects `main` for Maintainer push/merge access, disables force pushes, and restricts pipeline variable overrides to Maintainers. The new GitHub repository is public for unauthenticated learner cloning. Both distribute the same materials tag, `console-lab-2026-10-05.1`.
+The new GitLab project is private, uses the existing approved shared runners, protects `main` for Maintainer push/merge access, disables force pushes, and restricts pipeline variable overrides to Maintainers. The new GitHub repository is public for unauthenticated learner cloning. The initial validated materials tag was `console-lab-2026-10-05.1`; the README identifies the current release.
 
 The existing allocation contract comes from Luna Shared Platform. The new GitLab job validates its identity/compartment/region handoff; it does not itself allocate a tenancy or create an OKE cluster. Configure a new Luna lab to use this project and enable Shared Platform provisioning as described in [CI setup](gitlab-ci.md).
 
@@ -32,3 +32,9 @@ A fresh Luna session is still required to validate runtime credential injection,
 The original checkout's tracked file hashes and Git status were checked after publication and remained unchanged. No write operation targeted its GitHub repository or GitLab project. The new repositories contain a curated source snapshot, with no copied Git history, credentials, kubeconfigs, Terraform state/plans, or private operational logs.
 
 The app, chart, pinned upstream versions, monitoring values, and operational validation scripts were retained. Terraform and its infrastructure mutation/state/cleanup scripts were excluded because students now create those resources in the Console. Learner cleanup instructions are not part of this lab.
+
+## Three-worker update — console-lab-2026-10-05.3
+
+The Console instructions, diagram, capacity guidance, completion sheet, and preflight now require three managed workers. The preflight tests cover a missing third worker, a fourth worker, an unready or cordoned third worker, and missing/non-numeric third-worker metrics. The Quick Create introduction is included in this release.
+
+All 44 Python tests, all 13 full Helm checks (no skips), ShellCheck, documentation links/examples, and Kubernetes rendering passed locally. Full upstream chart access worked through the workstation's configured network proxy. The three-worker configuration has not been deployed to live OCI; its worker allocation is now 3 OCPUs and 48 GB memory plus three boot volumes. GitLab security analyzer execution remains subject to the runner image restriction recorded above.

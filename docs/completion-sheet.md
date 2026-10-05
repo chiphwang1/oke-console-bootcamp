@@ -9,7 +9,7 @@ Name: __________  Date: __________  Tested repository revision: __________
 ## Cluster creation
 
 - [ ] I created an enhanced OKE cluster in my allocated compartment and region.
-- [ ] I selected a public API endpoint, two private managed workers, and inspected the generated VCN/subnets.
+- [ ] I selected a public API endpoint, three private managed workers, and inspected the generated VCN/subnets.
 - [ ] I enabled Cert Manager, then Kubernetes Metrics Server.
 
 Cluster name: __________  Region: __________  Kubernetes version: __________
@@ -20,7 +20,7 @@ Explain why the public API endpoint does not make private worker nodes public: _
 
 ## Core checkpoints
 
-- [ ] Preflight passed for my cluster's current context; two workers are Ready with numeric resource metrics.
+- [ ] Preflight passed for my cluster's current context; three workers are Ready with numeric resource metrics.
 - [ ] My public app returned my customized message; two app pods showed `2/2` Ready.
 - [ ] I identified `web` and `istio-proxy` and found `hello-oke-traffic → hello-oke` in Kiali.
 - [ ] Manual scaling changed app replicas 2 → 4 → 2; worker count and Service IP stayed unchanged.

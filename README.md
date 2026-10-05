@@ -6,14 +6,14 @@ Luna allocates your temporary OCI account, compartment, region, and desktop. The
 
 Allow **90–120 minutes of hands-on time**, plus an optional 30-minute lecture. Cluster provisioning time and regional capacity vary; this schedule needs a classroom pilot.
 
-Your cluster has two **worker nodes**, the machines that run pods. Each application **pod** contains the Python app and an Istio proxy. A **Deployment** declares how many app pods should run, and its ReplicaSet maintains that count. A **Service** gives clients a stable way to reach those pods as individual pods change.
+Your cluster has three **worker nodes**, the machines that run pods. Each application **pod** contains the Python app and an Istio proxy. A **Deployment** declares how many app pods should run, and its ReplicaSet maintains that count. A **Service** gives clients a stable way to reach those pods as individual pods change.
 
 OKE manages the Kubernetes control plane that coordinates your cluster. You'll add Istio to this cluster to manage application traffic through proxies that run alongside your application containers.
 
 This lab assumes you can navigate a terminal, copy commands, and edit a YAML value. By the end, you should be able to:
 
 - Create an enhanced OKE cluster, inspect its networking, and enable resource metrics.
-- Configure kubeconfig and verify two Ready worker nodes.
+- Configure kubeconfig and verify three Ready worker nodes.
 - Customize and deploy an application with Helm, then explain how its Service reaches its pods.
 - Identify the application container and its Istio proxy, and follow traffic in Kiali.
 - Interpret baseline traffic and compare Grafana readings during manual scaling.
@@ -24,7 +24,7 @@ If time permits, use the **Horizontal Pod Autoscaler (HPA)** to adjust replicas 
 
 Run commands in a **Bash terminal on the Luna desktop**. Keep session credentials private.
 
-Materials revision: `console-lab-2026-10-05.2`. Your checkout and Luna instructions must show this same revision.
+Materials revision: `console-lab-2026-10-05.3`. Your checkout and Luna instructions must show this same revision.
 
 Record checkpoints in the [completion sheet](docs/completion-sheet.md).
 
@@ -32,7 +32,7 @@ Record checkpoints in the [completion sheet](docs/completion-sheet.md).
 
 ```mermaid
 flowchart LR
-  learner[Student in OCI Console] --> cluster[Enhanced OKE: two private workers]
+  learner[Student in OCI Console] --> cluster[Enhanced OKE: three private workers]
   browser[Browser / curl] --> lb[Public OCI LoadBalancer]
   subgraph OKE[Student-created OKE cluster]
     lb --> service[hello-oke Service]
@@ -70,7 +70,7 @@ Steps 6 and 7 are optional. Reserve at least 15 additional minutes for HPA or fi
 |---|---|
 | Luna Shared Platform | Allocates the student OCI tenancy/account, compartment, region, credentials, and desktop according to the lab's platform configuration |
 | New GitLab project | Receives the allocation, checks the identity/compartment/region and OKE version options, then records a ready student environment |
-| Student, in OCI Console | Creates the enhanced OKE cluster, VCN, subnets, gateways, managed node pool, and two workers; enables metrics add-ons |
+| Student, in OCI Console | Creates the enhanced OKE cluster, VCN, subnets, gateways, managed node pool, and three workers; enables metrics add-ons |
 | Student, with Helm | Installs mesh and monitoring, the application, traffic generator, and optional HPA |
 | OKE cloud controller | Creates the application's OCI load balancer when the student deploys its Kubernetes Service |
 
@@ -87,7 +87,7 @@ Use each code block's **Copy** button, then **Edit → Paste** in the Luna termi
 In a **Bash terminal** on your Luna desktop, download the lab repository. Keep this window open as **terminal 1**:
 
 ```bash
-git clone --branch console-lab-2026-10-05.2 --single-branch \
+git clone --branch console-lab-2026-10-05.3 --single-branch \
   https://github.com/chiphwang1/oke-console-bootcamp.git "$HOME/oke-console-bootcamp" &&
   cd "$HOME/oke-console-bootcamp"
 ```
@@ -106,7 +106,7 @@ If session details are missing, stop and ask the instructor; do not use a person
 
 ### Create your own cluster in the OCI Console
 
-Complete [Create an OKE cluster](docs/create-cluster.md) now. It walks you through Quick Create, the network and worker settings, and enabling Cert Manager and Kubernetes Metrics Server. Return here when the cluster and both nodes are Active and the add-ons are installed.
+Complete [Create an OKE cluster](docs/create-cluster.md) now. It walks you through Quick Create, the network and worker settings, and enabling Cert Manager and Kubernetes Metrics Server. Return here when the cluster and all three nodes are Active and the add-ons are installed.
 
 ### Open your cluster and configure access
 
@@ -157,13 +157,13 @@ In terminal 1, run preflight from the repository root:
 bash scripts/check-ready.sh
 ```
 
-Preflight checks files, tools, API access, version compatibility, two Ready workers, and resource metrics using your current kubeconfig context. It makes no cluster changes. OCI CLI must remain available to generate authentication tokens.
+Preflight checks files, tools, API access, version compatibility, three Ready workers, and resource metrics using your current kubeconfig context. It makes no cluster changes. OCI CLI must remain available to generate authentication tokens.
 
 Expect these lines and numeric CPU/memory readings (values vary):
 
 ```text
-PASS Workers: 2/2 Ready and not cordoned
-PASS Resource metrics: numeric CPU and memory for both workers
+PASS Workers: 3/3 Ready and not cordoned
+PASS Resource metrics: numeric CPU and memory for all three workers
 ```
 
 Continue only after `Preflight passed`. On `FAIL`, follow its message or ask the instructor; see [preflight troubleshooting](README.md#preflight-fails).
@@ -187,9 +187,9 @@ kubectl get nodes
 kubectl top nodes
 ```
 
-Expect two `Ready` workers and numeric CPU/memory readings. Keep terminal 1 open for later commands.
+Expect three `Ready` workers and numeric CPU/memory readings. Keep terminal 1 open for later commands.
 
-**Checkpoint:** identify the two workers and their CPU usage. Which file selects your Kubernetes connection, and which component supplies CPU metrics?
+**Checkpoint:** identify the three workers and their CPU usage. Which file selects your Kubernetes connection, and which component supplies CPU metrics?
 
 The selected context in `~/.kube/config` identifies the cluster and user. Metrics Server supplies the resource metrics used by `kubectl top` and this lab's HPA; Prometheus supplies the dashboard metrics. See [kubectl top node](https://kubernetes.io/docs/reference/kubectl/generated/kubectl_top/kubectl_top_node/).
 
@@ -322,7 +322,7 @@ Expect `0 chart(s) failed` (an icon recommendation is informational), a `2/2` Re
 
 | Where you look | What the count means |
 |---|---|
-| `kubectl get nodes` | Two worker machines run the cluster's workloads. |
+| `kubectl get nodes` | Three worker machines run the cluster's workloads. |
 | Deployment `READY 2/2` | Two of the two desired app replicas are ready. |
 | Each pod's `READY 2/2` | Both `web` (HTTP app) and `istio-proxy` (mesh traffic) are ready inside that pod. |
 
@@ -449,7 +449,7 @@ for request in {1..10}; do curl --fail --max-time 10 "http://${APP_IP}/"; done
 
 Wait for `successfully rolled out` before checking the counts. Helm can report `deployed` before every desired replica is ready; the rollout check waits for the Deployment to finish.
 
-Compare replicas, workers, Service IP, and response pod names with your predictions. Expect four Ready app replicas, unchanged Service IP, and two workers. Use the `NODE` column to locate the app pods; do not assume an even split. Record the manual-scaling observations on your completion sheet. A short request sequence need not reach each pod equally; your ten test requests can briefly raise the observed request rate above baseline.
+Compare replicas, workers, Service IP, and response pod names with your predictions. Expect four Ready app replicas, unchanged Service IP, and three workers. Use the `NODE` column to locate the app pods; do not assume an even split. Record the manual-scaling observations on your completion sheet. A short request sequence need not reach each pod equally; your ten test requests can briefly raise the observed request rate above baseline.
 
 **Readiness and liveness:** a pod can be `Running` while its app or Istio proxy is still initializing. In this lab, `2/2` means both are ready.
 
@@ -471,7 +471,7 @@ kubectl -n oke-lab get pods -l app=hello-oke
 
 Pods being removed may briefly show `Terminating`; wait for those rows to disappear before recording the restored count.
 
-**Core checkpoint:** confirm two Ready app pods, unchanged Service IP, and two workers. What changed during scaling, and why? Complete the restored row and core debrief on your completion sheet. Go to **step 8** to finish, or choose an optional extension if time permits.
+**Core checkpoint:** confirm two Ready app pods, unchanged Service IP, and three workers. What changed during scaling, and why? Complete the restored row and core debrief on your completion sheet. Go to **step 8** to finish, or choose an optional extension if time permits.
 
 ## 6. Optional: CPU-based autoscaling — allow at least 15 minutes
 

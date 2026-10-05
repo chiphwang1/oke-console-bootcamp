@@ -1,6 +1,6 @@
 # Lab architecture
 
-Use this same diagram during the opening lecture and the [student walkthrough](../README.md). It includes the optional HPA extension: the core lab uses the requests and monitoring paths, while the autoscaling path applies only after enabling HPA in step 6. It shows logical relationships, not individual network hops or current cluster health. Each learner has a dedicated cluster with two worker nodes; the diagram shows one of several application pods. The paths share one cluster; they do not imply fixed node placement.
+Use this same diagram during the opening lecture and the [student walkthrough](../README.md). It includes the optional HPA extension: the core lab uses the requests and monitoring paths, while the autoscaling path applies only after enabling HPA in step 6. It shows logical relationships, not individual network hops or current cluster health. Each learner has a dedicated cluster with three worker nodes; the diagram shows one of several application pods. The paths share one cluster; they do not imply fixed node placement.
 
 [View the architecture diagram](../README.md#architecture) and [completion sheet](completion-sheet.md).
 
@@ -16,7 +16,7 @@ The diagram is rendered as Mermaid by GitHub and GitLab. The descriptions above 
 
 | Component | Who provides it | Role |
 |---|---|---|
-| OKE, two workers, networking | Student through OCI Console | Runs the workloads; created during step 1 |
+| OKE, three workers, networking | Student through OCI Console | Runs the workloads; created during step 1 |
 | Cert Manager and Metrics Server | Student enables OCI-managed add-ons in the Console | Cert Manager is a dependency of this Metrics Server add-on; Metrics Server supplies resource metrics |
 | Istio base and Istiod | Student, using Helm | Register Istio object types and configure the workload proxies |
 | Prometheus | Student, using Helm | Scrapes and stores mesh metrics |
@@ -29,7 +29,7 @@ The diagram is rendered as Mermaid by GitHub and GitLab. The descriptions above 
 
 | Term | Meaning in this lab |
 |---|---|
-| Worker node | A machine that runs pods; this lab has two workers even when app replicas change |
+| Worker node | A machine that runs pods; this lab has three workers even when app replicas change |
 | Kubernetes control plane / Istiod | OKE-managed cluster coordination / the separate Istio control plane that configures proxies |
 | Pod | A running unit containing the app and its Istio proxy |
 | Deployment / ReplicaSet | Declares the desired app state / maintains the desired pod count |

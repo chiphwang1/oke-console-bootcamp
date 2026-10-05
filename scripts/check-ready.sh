@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Read-only preflight for the two-worker student lab. Never select a context,
+# Read-only preflight for the three-worker student lab. Never select a context,
 # install software, retrieve secrets, or change Kubernetes/OCI resources.
 set -euo pipefail
 
@@ -91,8 +91,8 @@ while read -r node ready unschedulable; do
   [[ "$ready" == True && "$unschedulable" != true ]] || \
     fail "Nodes: $node is not Ready or is cordoned. Ask the instructor; do not uncordon or resize the pool."
 done <<< "$node_rows"
-[[ "$node_count" == 2 ]] || fail "Nodes: expected the assigned lab's two workers, found $node_count. Ask the instructor to verify provisioning and the assignment."
-pass 'Workers: 2/2 Ready and not cordoned'
+[[ "$node_count" == 3 ]] || fail "Nodes: expected the assigned lab's three workers, found $node_count. Ask the instructor to verify provisioning and the assignment."
+pass 'Workers: 3/3 Ready and not cordoned'
 
 if ! metrics=$("${kube[@]}" top nodes --no-headers 2>/dev/null); then
   fail 'Resource metrics: unavailable. Ask the instructor to check Metrics Server; Prometheus is not its replacement.'
@@ -106,7 +106,7 @@ while read -r node _; do
     fail "Resource metrics: missing/non-numeric CPU or memory for $node. Wait briefly, rerun once, then ask the instructor."
   fi
 done <<< "$node_rows"
-pass 'Resource metrics: numeric CPU and memory for both workers'
+pass 'Resource metrics: numeric CPU and memory for all three workers'
 printf '%s\n' "$metrics"
 printf '\n%s\n' 'Preflight passed. Complete the chart downloads, archive checks, and connection confirmation in README step 1, then continue to step 2.'
 printf '%s\n' 'No context, kubeconfig, or cluster resources were changed. OCI authentication may use its normal local cache.'
