@@ -1,0 +1,71 @@
+alertmanager:
+  enabled: false
+kube-state-metrics:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false
+# Replace the chart's general cluster scrapes with the two explicit mesh jobs.
+# In this chart version, serverFiles scrape_configs are appended to these.
+scrapeConfigs:
+  prometheus:
+    enabled: false
+  kubernetes-api-servers:
+    enabled: false
+  kubernetes-nodes:
+    enabled: false
+  kubernetes-nodes-cadvisor:
+    enabled: false
+  kubernetes-service-endpoints:
+    enabled: false
+  kubernetes-service-endpoints-slow:
+    enabled: false
+  prometheus-pushgateway:
+    enabled: false
+  kubernetes-services:
+    enabled: false
+  kubernetes-pods:
+    enabled: false
+  kubernetes-pods-slow:
+    enabled: false
+server:
+  fullnameOverride: prometheus-server
+  persistentVolume:
+    enabled: false
+  retention: 2h
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+  global:
+    scrape_interval: 15s
+    evaluation_interval: 15s
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+      - job_name: istiod
+        static_configs:
+          - targets: [istiod.istio-system.svc.cluster.local:15014]
+      - job_name: istio-workloads
+        metrics_path: /stats/prometheus
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: [oke-lab]
+        relabel_configs:
+          # Select one proxy port per pod to avoid duplicate scrape targets.
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: http-envoy-prom
+          - source_labels: [__meta_kubernetes_pod_phase]
+            action: keep
+            regex: Running
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod

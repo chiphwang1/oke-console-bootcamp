@@ -1,0 +1,28 @@
+replicaCount: 2
+image: docker.io/library/python:3.13.7-slim-bookworm
+message: Hello from the OKE bootcamp
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 60
+service:
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/oci-load-balancer-shape: flexible
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "10"
+traffic:
+  enabled: false
+  image: docker.io/curlimages/curl:8.14.1
+  # A timed burst followed by the normal one-request-per-two-seconds traffic.
+  loadEnabled: false
+  durationSeconds: 300
+  concurrency: 2

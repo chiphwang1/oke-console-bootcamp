@@ -1,0 +1,3 @@
+# Published learner assets must not receive text or newline transformations.
+*.pdf binary
+*.png binary

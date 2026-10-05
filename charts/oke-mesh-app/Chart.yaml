@@ -1,0 +1,7 @@
+apiVersion: v2
+name: oke-mesh-app
+description: Build, run, observe, and scale an application in the Luna OKE bootcamp
+type: application
+version: 0.2.0
+appVersion: "2.0.0"
+kubeVersion: ">=1.32.0-0 <1.37.0-0"

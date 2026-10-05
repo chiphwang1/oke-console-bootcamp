@@ -1,0 +1,10 @@
+# Edit only message; Helm applies these values in the Configure and deploy exercise.
+message: Hello from my OKE bootcamp
+replicaCount: 2
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi

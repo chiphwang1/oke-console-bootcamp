@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "replicaCount": {"type": "integer", "minimum": 1, "maximum": 6},
+    "message": {"type": "string", "maxLength": 500},
+    "autoscaling": {
+      "type": "object",
+      "required": ["enabled", "minReplicas", "maxReplicas", "targetCPUUtilizationPercentage"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "minReplicas": {"type": "integer", "minimum": 1, "maximum": 6},
+        "maxReplicas": {"type": "integer", "minimum": 1, "maximum": 6},
+        "targetCPUUtilizationPercentage": {"type": "integer", "minimum": 1, "maximum": 100}
+      }
+    },
+    "traffic": {
+      "type": "object",
+      "required": ["enabled", "loadEnabled", "durationSeconds", "concurrency"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "loadEnabled": {"type": "boolean"},
+        "durationSeconds": {"type": "integer", "minimum": 1, "maximum": 600},
+        "concurrency": {"type": "integer", "minimum": 1, "maximum": 4}
+      }
+    }
+  }
+}

@@ -1,0 +1,76 @@
+stages:
+  - validate
+  - test
+  - secret-detection
+  - allocate
+
+workflow:
+  rules:
+    - if: '$LUNA_DEPLOYMENT == "1" && ($CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH || $CI_COMMIT_REF_PROTECTED != "true")'
+      when: never
+    - when: always
+
+default:
+  image:
+    name: container-registry.oracle.com/os/oraclelinux:9
+    entrypoint: [""]
+  interruptible: true
+
+variables:
+  LAB_KUBERNETES_MINOR: "1.36"
+  SECRET_DETECTION_ENABLED: "true"
+
+shell:lint:
+  stage: validate
+  before_script:
+    - bash scripts/ci-tools.sh shellcheck
+  script:
+    - shellcheck scripts/*.sh
+
+kubernetes:render:
+  stage: validate
+  before_script:
+    - bash scripts/ci-tools.sh kubectl
+  script:
+    - kubectl kustomize kubernetes
+
+python:test:
+  stage: test
+  before_script:
+    - dnf install -y python3 python3-pyyaml openssl
+  script:
+    - python3 -m unittest discover -s scripts/tests -v
+
+helm:render:
+  stage: test
+  before_script:
+    - bash scripts/ci-tools.sh helm
+    - dnf install -y python3-pyyaml
+  script:
+    - bash scripts/test-helm.sh
+
+# Luna allocates identity/compartment before launching this pipeline.
+# Validate that handoff; learners create the OKE cluster in the Console.
+student:environment:
+  stage: allocate
+  interruptible: false
+  before_script:
+    - bash scripts/ci-tools.sh oci
+  script:
+    - python3 scripts/student-environment.py
+  rules:
+    - if: '$LUNA_DEPLOYMENT == "1" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"'
+      when: on_success
+    - when: never
+  environment:
+    name: luna/oke-console-$CI_PIPELINE_ID
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
+sast:
+  stage: test
+
+secret_detection:
+  stage: secret-detection

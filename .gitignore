@@ -1,0 +1,21 @@
+# Local credentials, state, generated data, and tool caches
+.DS_Store
+.oci/
+.oci-local/
+.kube/
+.env
+.env.*
+*.pem
+*.key
+*.p12
+.gitlab_*
+*.tfvars
+*.tfvars.json
+*.tfstate*
+*.tfplan
+.terraform/
+.lab-cache/
+__pycache__/
+*.pyc
+.venv/
+output/

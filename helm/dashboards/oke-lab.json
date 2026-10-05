@@ -1,0 +1,430 @@
+{
+  "uid": "oke-lab",
+  "title": "OKE Lab — Traffic & Scaling",
+  "description": "Istio request telemetry from the lab Prometheus. Proxy count visualizes scaling, not HPA desired replicas or readiness.",
+  "tags": [
+    "oke",
+    "istio",
+    "bootcamp"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 2,
+  "editable": false,
+  "refresh": "15s",
+  "timepicker": {
+    "refresh_intervals": ["5s", "15s", "30s", "1m", "5m"]
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "How to read this lab dashboard",
+      "type": "text",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Namespace:** `oke-lab` · **Application:** `hello-oke` · **Refresh:** 15 seconds\n\nRun the bounded `/work` load generator to see traffic and proxy count rise. **Proxy count is not HPA desired replicas or readiness**; use `kubectl -n oke-lab get hpa` for HPA CPU and replica status. The HPA uses Metrics Server, not Prometheus. Empty latency/success panels can mean no traffic; do not interpret missing data as healthy."
+      }
+    },
+    {
+      "id": 2,
+      "title": "Requests / second",
+      "type": "stat",
+      "description": "Destination-reported inbound requests, averaged over one minute.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "oke-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_workload_namespace=\"oke-lab\",destination_workload=\"hello-oke\"}[1m]))",
+          "legendFormat": "",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "noValue": "No data",
+          "mappings": [{"type": "special", "options": {"match": "nan", "result": {"text": "No data"}}}],
+          "decimals": 2,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Successful requests",
+      "type": "stat",
+      "description": "HTTP 2xx and 3xx as a percentage of destination-reported requests. No traffic yields no data.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "oke-prometheus"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 3,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "100 * sum(rate(istio_requests_total{reporter=\"destination\",destination_workload_namespace=\"oke-lab\",destination_workload=\"hello-oke\",response_code=~\"2..|3..\"}[1m])) / sum(rate(istio_requests_total{reporter=\"destination\",destination_workload_namespace=\"oke-lab\",destination_workload=\"hello-oke\"}[1m]))",
+          "legendFormat": "",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "No data",
+          "mappings": [{"type": "special", "options": {"match": "nan", "result": {"text": "No data"}}}],
+          "decimals": 2,
+          "min": 0,
+          "max": 100,
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Application proxies up",
+      "type": "stat",
+      "description": "Successfully scraped application proxies; excludes the traffic generator. Discovery and termination can lag actual replicas.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "oke-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 3,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(up{job=\"istio-workloads\",namespace=\"oke-lab\",pod=~\"hello-oke-[a-f0-9]+-.*\"} == 1)",
+          "legendFormat": "",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data",
+          "mappings": [{"type": "special", "options": {"match": "nan", "result": {"text": "No data"}}}],
+          "decimals": 0,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "title": "Istiod scrape health",
+      "type": "stat",
+      "description": "1 means the Istiod metrics endpoint is successfully scraped; 0 means scrape failure. This alone is not full control-plane health.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "oke-prometheus"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 3,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "min(up{job=\"istiod\"})",
+          "legendFormat": "",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "noValue": "No data",
+          "mappings": [{"type": "special", "options": {"match": "nan", "result": {"text": "No data"}}}],
+          "decimals": 0,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "title": "Traffic through Istio",
+      "type": "timeseries",
+      "description": "Destination-reported inbound traffic for hello-oke.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "oke-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 7,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(istio_requests_total{reporter=\"destination\",destination_workload_namespace=\"oke-lab\",destination_workload=\"hello-oke\"}[1m]))",
+          "legendFormat": "Requests / second",
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "decimals": 2,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Application proxy count — scaling indicator",
+      "type": "timeseries",
+      "description": "Compare baseline, scale-out, and return to two pods. Six is the HPA maximum, not a required peak. This counts successful proxy scrapes, not HPA current/desired replicas or readiness.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "oke-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 7,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(up{job=\"istio-workloads\",namespace=\"oke-lab\",pod=~\"hello-oke-[a-f0-9]+-.*\"} == 1)",
+          "legendFormat": "Application proxies",
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Request latency",
+      "type": "timeseries",
+      "description": "Istio destination latency distribution. CPU-intensive /work requests are slower than baseline /.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "oke-prometheus"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 15,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(istio_request_duration_milliseconds_bucket{reporter=\"destination\",destination_workload_namespace=\"oke-lab\",destination_workload=\"hello-oke\"}[1m])))",
+          "legendFormat": "p95",
+          "range": true
+        },
+        {
+          "refId": "B",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(istio_request_duration_milliseconds_bucket{reporter=\"destination\",destination_workload_namespace=\"oke-lab\",destination_workload=\"hello-oke\"}[1m])))",
+          "legendFormat": "p50",
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 2,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Response codes",
+      "type": "timeseries",
+      "description": "Includes HTTP 429 when bounded application concurrency is exceeded and 5xx if observed.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "oke-prometheus"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 15,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (response_code) (rate(istio_requests_total{reporter=\"destination\",destination_workload_namespace=\"oke-lab\",destination_workload=\"hello-oke\"}[1m]))",
+          "legendFormat": "HTTP {{response_code}}",
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "decimals": 2,
+          "min": 0,
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    }
+  ]
+}

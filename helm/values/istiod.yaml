@@ -1,0 +1,21 @@
+autoscaleEnabled: false
+replicaCount: 1
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+meshConfig:
+  enablePrometheusMerge: true
+  accessLogFile: /dev/stdout
+  defaultConfig:
+    holdApplicationUntilProxyStarts: true
+global:
+  proxy:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
