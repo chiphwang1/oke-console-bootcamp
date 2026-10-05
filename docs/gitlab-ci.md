@@ -37,6 +37,16 @@ The source project used automatic Luna provisioning and manual cleanup callbacks
 
 GitLab SAST and Secret Detection templates are retained. Their analyzer images need runner approval, as in the source project. An unavailable or skipped scanner must be reported as such. The default Oracle Linux 9 image does not override template analyzer images.
 
+## Resolve the blocked security scans
+
+The current shared runner permits images from `**.ocir.io/**`, `registry.hap.demo.us-phoenix-1.oci.oraclecloud.com/**`, and `container-registry.oracle.com/**`. It rejects the template defaults `registry.gitlab.com/security-products/semgrep:6` and `registry.gitlab.com/security-products/secrets:7` before either analyzer runs.
+
+Obtain approved analyzer image locations or an approved runner from the platform owner. If both approved mirrors preserve the `semgrep:6` and `secrets:7` names under one registry path, configure **only this new project's** `SECURE_ANALYZERS_PREFIX` CI/CD variable with that path. If the approved images use different names, override each analyzer job's `image` with its approved location instead. Confirm runner pull access and version compatibility with this GitLab instance's templates. Do not move unapproved images into an allowed registry simply to bypass the runner restriction.
+
+See [GitLab's offline analyzer configuration](https://docs.gitlab.com/user/application_security/offline_deployments/) and [Secret Detection configuration](https://docs.gitlab.com/user/application_security/secret_detection/pipeline/configure/). Run CI Lint after configuring the approved images, then run a source pipeline and inspect both analyzer jobs and their reports. An allowed failure, skipped job, or absent report is not a scan pass. Review findings and record the exact pipeline in the [delivery readiness record](delivery-readiness.md).
+
+Until approved locations or a runner are supplied, the scans remain blocked. Keep their template jobs visible so the blocker is reported; do not disable them or claim that a local secret scan replaces SAST and pipeline Secret Detection.
+
 ## Runner and checks
 
 Use isolated job containers, not a shared shell runner. `scripts/ci-tools.sh` installs pinned tools inside the disposable container only: Helm 3.19.0, kubectl 1.36.1, ShellCheck 0.11.0, and OCI CLI 3.78.0. The runner needs outbound access to GitLab, Oracle's container/package registries, Helm chart repositories, GitHub downloads, `get.helm.sh`, `dl.k8s.io`, PyPI, and OCI APIs. Allocation validation does not need access to a Kubernetes endpoint because no cluster exists yet.

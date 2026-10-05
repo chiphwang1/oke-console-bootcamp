@@ -38,3 +38,15 @@ The app, chart, pinned upstream versions, monitoring values, and operational val
 The Console instructions, diagram, capacity guidance, completion sheet, and preflight now require three managed workers. The preflight tests cover a missing third worker, a fourth worker, an unready or cordoned third worker, and missing/non-numeric third-worker metrics. The Quick Create introduction is included in this release.
 
 All 44 Python tests, all 13 full Helm checks (no skips), ShellCheck, documentation links/examples, and Kubernetes rendering passed locally. Full upstream chart access worked through the workstation's configured network proxy. The three-worker configuration has not been deployed to live OCI; its worker allocation is now 3 OCPUs and 48 GB memory plus three boot volumes. GitLab security analyzer execution remains subject to the runner image restriction recorded above.
+
+## Delivery review follow-up — console-lab-2026-10-05.4
+
+The new [Luna lab](https://luna.oracle.com/lab/14dae9a8-6c89-4200-9e9b-7a522f846665) is registered and connected to the new GitLab project. The three-worker allocation was read back in Luna: one enhanced cluster, three E5 OCPUs, 48 GB memory, 150 GB storage, and one 10 Mbps flexible load balancer. Student management permissions and Shared Platform provisioning are enabled. Resource availability and effective permissions still require a pilot.
+
+The delivery update reserves a 150-minute session for the 90–120-minute core, moves the optional lecture before launch, and bases extension cutoffs on remaining time. README supporting-document links open the public tagged release. The [delivery readiness record](delivery-readiness.md) separates saved configuration, static checks, pending student-session evidence, and operator reclamation verification.
+
+The review of `a5b6fbd` passed 44 Python tests, all 13 Helm checks with upstream rendering, ShellCheck, and Kubernetes rendering. [Pipeline 401331](https://gitlab.hap.demo.us-phoenix-1.oci.oraclecloud.com/luna-labs/ospa/oke-console-bootcamp/-/pipelines/401331) passed the four functional jobs, but both security analyzers failed before execution because their images are disallowed. Approved mirror/runner details are still required; no runner security policy was changed.
+
+No live student launch, OCI deployment, or reclamation test has been performed. The lab remains Private pending the owner's sharing choice. Classroom readiness is still pending the recorded live checks and scanner resolution.
+
+Checks rerun after the `.4` documentation changes: **44 Python tests passed**, **13 full Helm checks passed with no skips**, ShellCheck and Kubernetes rendering passed, and all 23 README public-release document links matched existing files and anchors in the release tree. No application or CI execution code changed.

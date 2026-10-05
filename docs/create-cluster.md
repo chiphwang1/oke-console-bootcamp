@@ -9,7 +9,7 @@ This is a required exercise in [step 1](../README.md#1-create-your-cluster-and-c
 3. Confirm the instructor has checked permissions to create OKE clusters, node pools, compute, network resources, and load balancers, and that your identity can install cluster-wide Helm resources. The allocation CI job checks read access; it cannot prove these create permissions.
 4. Confirm the desktop has OCI CLI, kubectl, Helm, Git, and curl. Desktop CLI authentication must use your session's OCI profile. The Console login alone does not configure the terminal.
 
-The instructor must reserve capacity for three workers, their boot volumes, one enhanced cluster, networking, and one flexible load balancer at 10 Mbps. This lab uses x86 images. Regional shape and Kubernetes availability must be rehearsed in the allocated region. See [Oracle's cluster creation permissions](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengpolicyconfig.htm).
+The allocation is sized for three workers, 150 GB total boot storage, one enhanced cluster, networking, and one flexible load balancer at 10 Mbps. Before creating the cluster, confirm the selected image's default boot-volume size fits within 150 GB across all three workers. Ask the instructor if it does not fit; do not reduce the worker count. This lab uses x86 images. Regional shape and Kubernetes availability must be rehearsed in the allocated region. See [Oracle's cluster creation permissions](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengpolicyconfig.htm).
 
 ## Create the cluster and network
 

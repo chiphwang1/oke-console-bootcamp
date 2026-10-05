@@ -4,7 +4,7 @@ In this lab, you create an Oracle Kubernetes Engine (OKE) cluster through the OC
 
 Luna allocates your temporary OCI account, compartment, region, and desktop. The new GitLab pipeline checks that allocation. **During this lab, you use OKE’s Quick Create (quickstart) workflow in the OCI Console to create the cluster, networking, and worker nodes.**
 
-Allow **90–120 minutes of hands-on time**, plus an optional 30-minute lecture. Cluster provisioning time and regional capacity vary; this schedule needs a classroom pilot.
+Allow **90–120 minutes for the core exercises** within a **150-minute Luna session**. Reserve the remaining time for provisioning delays, troubleshooting, and debrief. Give the optional 30-minute lecture **before launching the timed session**. These estimates must be checked in a beginner pilot.
 
 Your cluster has three **worker nodes**, the machines that run pods. Each application **pod** contains the Python app and an Istio proxy. A **Deployment** declares how many app pods should run, and its ReplicaSet maintains that count. A **Service** gives clients a stable way to reach those pods as individual pods change.
 
@@ -24,9 +24,9 @@ If time permits, use the **Horizontal Pod Autoscaler (HPA)** to adjust replicas 
 
 Run commands in a **Bash terminal on the Luna desktop**. Keep session credentials private.
 
-Materials revision: `console-lab-2026-10-05.3`. Your checkout and Luna instructions must show this same revision.
+Materials revision: `console-lab-2026-10-05.4`. Your checkout and Luna instructions must show this same revision.
 
-Record checkpoints in the [completion sheet](docs/completion-sheet.md).
+Record checkpoints in the [completion sheet](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/completion-sheet.md).
 
 ## Architecture
 
@@ -49,7 +49,7 @@ flowchart LR
   cluster -. hosts .-> OKE
 ```
 
-The monitoring arrows show the flow of data; Prometheus initiates scrapes, and Kiali/Grafana query it. Dashboards use localhost port-forwards. Metrics Server supplies the optional HPA independently of Prometheus. Read the [component guide](docs/architecture.md).
+The monitoring arrows show the flow of data; Prometheus initiates scrapes, and Kiali/Grafana query it. Dashboards use localhost port-forwards. Metrics Server supplies the optional HPA independently of Prometheus. Read the [component guide](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/architecture.md).
 
 ## Schedule
 
@@ -62,7 +62,7 @@ The monitoring arrows show the flow of data; Prometheus initiates scrapes, and K
 | 7 minutes | 5. Scale manually | Change app replicas from two to four and back |
 | 5 minutes | 8. Debrief | Explain your cluster and application observations |
 
-Steps 6 and 7 are optional. Reserve at least 15 additional minutes for HPA or five for pod recovery. Start an extension only after completing the core, with enough session time left to finish and reset its load. These are provisional estimates; record actual cluster wait time during the pilot.
+Steps 6 and 7 are optional. Keep at least **10 minutes before session expiry** for debrief and reporting blockers. Start HPA only with at least **25 minutes remaining**, or pod recovery with at least **15 minutes remaining**, after completing the core. Troubleshooting takes priority over optional exercises. These are provisional estimates; record actual cluster wait time during the pilot.
 
 ## What creates each resource?
 
@@ -74,11 +74,11 @@ Steps 6 and 7 are optional. Reserve at least 15 additional minutes for HPA or fi
 | Student, with Helm | Installs mesh and monitoring, the application, traffic generator, and optional HPA |
 | OKE cloud controller | Creates the application's OCI load balancer when the student deploys its Kubernetes Service |
 
-The [GitHub repository](https://github.com/chiphwang1/oke-console-bootcamp) distributes the learner materials. The [new GitLab project](https://gitlab.hap.demo.us-phoenix-1.oci.oraclecloud.com/luna-labs/ospa/oke-console-bootcamp) contains the same release plus CI for the Luna allocation handoff. See [CI administration](docs/gitlab-ci.md). No Terraform is needed: the existing allocation is provided by Luna, while all infrastructure previously managed by this lab's Terraform is now created by the student.
+The [GitHub repository](https://github.com/chiphwang1/oke-console-bootcamp) distributes the learner materials. The [new GitLab project](https://gitlab.hap.demo.us-phoenix-1.oci.oraclecloud.com/luna-labs/ospa/oke-console-bootcamp) contains the same release plus CI for the Luna allocation handoff. See [CI administration](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/gitlab-ci.md). No Terraform is needed: the existing allocation is provided by Luna, while all infrastructure previously managed by this lab's Terraform is now created by the student.
 
 ## Before hands-on: start your student environment
 
-Launch the new Luna lab configured by your instructor. Wait for the desktop and assigned OCI credentials to become available. An empty OKE cluster list is expected at this stage. The [instructor guide](docs/instructor-guide.md) explains the allocation handoff and prerequisite checks.
+Launch the new Luna lab configured by your instructor. Wait for the desktop and assigned OCI credentials to become available. An empty OKE cluster list is expected at this stage. The [instructor guide](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/instructor-guide.md) explains the allocation handoff and prerequisite checks.
 
 ## 1. Create your cluster and confirm your connection — 40–70 minutes
 
@@ -87,7 +87,7 @@ Use each code block's **Copy** button, then **Edit → Paste** in the Luna termi
 In a **Bash terminal** on your Luna desktop, download the lab repository. Keep this window open as **terminal 1**:
 
 ```bash
-git clone --branch console-lab-2026-10-05.3 --single-branch \
+git clone --branch console-lab-2026-10-05.4 --single-branch \
   https://github.com/chiphwang1/oke-console-bootcamp.git "$HOME/oke-console-bootcamp" &&
   cd "$HOME/oke-console-bootcamp"
 ```
@@ -106,13 +106,13 @@ If session details are missing, stop and ask the instructor; do not use a person
 
 ### Create your own cluster in the OCI Console
 
-Complete [Create an OKE cluster](docs/create-cluster.md) now. It walks you through Quick Create, the network and worker settings, and enabling Cert Manager and Kubernetes Metrics Server. Return here when the cluster and all three nodes are Active and the add-ons are installed.
+Open [Create an OKE cluster](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/create-cluster.md) in another browser tab and complete it now. Keep the Luna instructions tab open. It walks you through Quick Create, the network and worker settings, and enabling Cert Manager and Kubernetes Metrics Server. Return here when the cluster and all three nodes are Active and the add-ons are installed.
 
 ### Open your cluster and configure access
 
 Use the assigned compartment and region shown in Luna Lab.
 
-Your **kubeconfig** tells kubectl which cluster to connect to and how to authenticate. Create it at `~/.kube/config` on your Luna desktop—the default location used by kubectl and Helm. Follow the Console route below; the [access guide](docs/cluster-access.md) is for additional authentication details or troubleshooting.
+Your **kubeconfig** tells kubectl which cluster to connect to and how to authenticate. Create it at `~/.kube/config` on your Luna desktop—the default location used by kubectl and Helm. Follow the Console route below; the [access guide](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/cluster-access.md) is for additional authentication details or troubleshooting.
 
 1. Select your **region** in the OCI Console. Open the upper-left navigation menu → **Developer Services → Containers & Artifacts → Kubernetes Clusters (OKE)**. See [Oracle's navigation instructions](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/list-clusters.htm).
 2. Open the **Compartment** filter. Expand the compartment hierarchy if needed and select the exact **Compartment Name** shown on your Luna Lab page. Do not choose a compartment just because its name begins with `luna`, and do not use the tenancy root.
@@ -130,7 +130,7 @@ Your **kubeconfig** tells kubectl which cluster to connect to and how to authent
    - Use `--file "$HOME/.kube/config"` (the default location).
    - Keep **your cluster's** OCID, region, and endpoint.
    - This lab uses `--kube-endpoint PUBLIC_ENDPOINT`, matching the public API endpoint you selected in Quick Create.
-   - Follow the [desktop OCI authentication settings](docs/cluster-access.md#generate-your-kubeconfig-on-the-desktop).
+   - Follow the [desktop OCI authentication settings](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/cluster-access.md#generate-your-kubeconfig-on-the-desktop).
    - Do not add `--overwrite`.
 
    Run the edited command in **terminal 1** to create your kubeconfig.
@@ -210,7 +210,7 @@ We install Istio and the monitoring tools first so they are ready to observe the
 | Cert Manager | Manages TLS certificates; it is a dependency of this OCI-managed Metrics Server add-on. | You enable the OKE add-on before Metrics Server |
 | HPA | Adjusts app replicas using CPU metrics; it does not add worker nodes. | Optional: enable in step 6 |
 
-`kubectl` manages Kubernetes resources; OCI CLI authenticates the connection. Both are preinstalled. The [architecture diagram](docs/architecture.md) separates dashboard and HPA metrics paths.
+`kubectl` manages Kubernetes resources; OCI CLI authenticates the connection. Both are preinstalled. The [architecture diagram](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/architecture.md) separates dashboard and HPA metrics paths.
 
 Istio, Prometheus, Kiali, and Grafana are upstream open-source tools installed from published Helm charts and container images. We do not modify their application source code, but we supply lab-specific settings for resource limits, metrics collection, and dashboard access, plus a custom Grafana dashboard. Grafana uses the [open-source image](https://grafana.com/docs/grafana/latest/setup-grafana/installation/docker/). The `hello-oke` application and its chart are custom training materials in this repository.
 
@@ -224,7 +224,7 @@ A **Helm chart** packages Kubernetes templates; a **release** is its named insta
 
 **For every Helm install or upgrade:** expect `STATUS: deployed` and a returned prompt. Ask for help on errors or timeouts before continuing.
 
-Install Istio base for its custom resource definitions (CRDs, extra Kubernetes object types), then `istiod`, which configures the proxies that run alongside your application containers. While waiting, trace the metrics path on the [architecture diagram](docs/architecture.md).
+Install Istio base for its custom resource definitions (CRDs, extra Kubernetes object types), then `istiod`, which configures the proxies that run alongside your application containers. While waiting, trace the metrics path on the [architecture diagram](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/architecture.md).
 
 ```bash
 helm upgrade --install istio-base ".lab-cache/charts/base-${ISTIO_VERSION}.tgz" \
@@ -352,7 +352,7 @@ Expected response (illustrative; your message and pod name will differ):
 {"message":"Hello from YOUR-NAME's OKE lab","pod":"hello-oke-example-abc12","work":false}
 ```
 
-You can also open `http://<EXTERNAL-IP>/` in the desktop browser, replacing `<EXTERNAL-IP>` with the displayed address. Use **HTTP, not HTTPS**: this lab Service exposes port 80 without TLS. Backends may become healthy after IP assignment: retry HTTP after 15–30 seconds; ask for help after a minute ([troubleshooting](docs/troubleshooting.md)). This public, unauthenticated endpoint must contain only training data.
+You can also open `http://<EXTERNAL-IP>/` in the desktop browser, replacing `<EXTERNAL-IP>` with the displayed address. Use **HTTP, not HTTPS**: this lab Service exposes port 80 without TLS. Backends may become healthy after IP assignment: retry HTTP after 15–30 seconds; ask for help after a minute ([troubleshooting](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/troubleshooting.md)). This public, unauthenticated endpoint must contain only training data.
 
 The traffic generator is a separate Deployment with one pod. Its `traffic` container sends HTTP requests to the in-cluster `hello-oke` Service about every two seconds, creating traffic for Kiali and Grafana to display.
 
@@ -420,11 +420,11 @@ The **OKE Lab — Traffic & Scaling** dashboard opens with a 30-minute range and
 
 To read p95, scroll to **Request latency** and hover over a recent point. Record the tooltip's **p95** value and timestamp in your notes, not p50.
 
-**Proxy count is not pod readiness**; scrape discovery can lag. Confirm two Ready pods with `kubectl -n oke-lab get pods -l app=hello-oke`. HPA remains disabled throughout the core lab. Empty panels mean `no data`, not zero traffic or health ([troubleshooting](docs/troubleshooting.md)).
+**Proxy count is not pod readiness**; scrape discovery can lag. Confirm two Ready pods with `kubectl -n oke-lab get pods -l app=hello-oke`. HPA remains disabled throughout the core lab. Empty panels mean `no data`, not zero traffic or health ([troubleshooting](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/troubleshooting.md)).
 
-**Checkpoint:** record the baseline row in your [completion sheet](docs/completion-sheet.md). Does the request rate match the generator's interval? Trace the monitoring path from the proxies to Kiali and Grafana, then explain one reading and its source.
+**Checkpoint:** record the baseline row in your [completion sheet](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/completion-sheet.md). Does the request rate match the generator's interval? Trace the monitoring path from the proxies to Kiali and Grafana, then explain one reading and its source.
 
-Keep both dashboards open, using the same Grafana time range and p95 statistic throughout scaling. More replicas do not generate more demand: baseline traffic continues about every two seconds. Observe proxy count alongside actual Ready pods. The [monitoring guide](docs/monitoring.md) covers queries and optional exercises.
+Keep both dashboards open, using the same Grafana time range and p95 statistic throughout scaling. More replicas do not generate more demand: baseline traffic continues about every two seconds. Observe proxy count alongside actual Ready pods. The [monitoring guide](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/monitoring.md) covers queries and optional exercises.
 
 Ask for help if panels remain empty after two minutes of traffic.
 
@@ -475,7 +475,7 @@ Pods being removed may briefly show `Terminating`; wait for those rows to disapp
 
 ## 6. Optional: CPU-based autoscaling — allow at least 15 minutes
 
-Start only after step 5 is complete and at least 15 minutes remain before debrief. Otherwise skip to step 8 or save this extension for a follow-up session. Keep the dashboards open and use terminal 1. The estimate includes setup, a five-minute burst, and scale-in; it is not a guarantee. If time runs short, reset the load using **Stop load and observe scale-in** below and record any unfinished observations.
+Start only after step 5 is complete and at least 25 minutes remain before the Luna session expires, including 10 minutes reserved for debrief. Otherwise skip to step 8 or save this extension for a follow-up session. Keep the dashboards open and use terminal 1. The estimate includes setup, a five-minute burst, and scale-in; it is not a guarantee. If time runs short, reset the load using **Stop load and observe scale-in** below and record any unfinished observations.
 
 Use the completion sheet's **optional HPA** sections. Skipping this extension does not affect core completion.
 
@@ -541,7 +541,7 @@ kubectl -n oke-lab logs -l app=hello-oke-traffic -c traffic --prefix --timestamp
 
 Resume `kubectl -n oke-lab get hpa hello-oke --watch` as needed. Traffic logs show burst completion; prefixes and timestamps distinguish old and new generator pods during rollouts. Leave dashboard forwards running.
 
-Watch Grafana's **Traffic through Istio**, **Request latency**, and **Application proxy count — scaling indicator** alongside the HPA. Record load readings, peak replicas, and success/response codes; check the Kiali traffic edge. Six replicas is a limit, not a guaranteed peak. For Pending pods or `<unknown>` CPU, use [troubleshooting](docs/troubleshooting.md); do not enlarge the node pool.
+Watch Grafana's **Traffic through Istio**, **Request latency**, and **Application proxy count — scaling indicator** alongside the HPA. Record load readings, peak replicas, and success/response codes; check the Kiali traffic edge. Six replicas is a limit, not a guaranteed peak. For Pending pods or `<unknown>` CPU, use [troubleshooting](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/troubleshooting.md); do not enlarge the node pool.
 
 Baseline `/` and burst `/work` do different work; two concurrent streams produce a variable request rate. Because both workload and replicas change, this comparison cannot isolate autoscaling's effect on latency.
 
@@ -566,13 +566,13 @@ Wait for CPU to settle and replicas to return to two, then press **Ctrl+C**. If 
 
 Downscale stabilization is 60 seconds here (Kubernetes defaults to five minutes); metrics and reconciliation add delay. Reset the burst flag even after automatic completion: a generator restart with burst mode enabled starts another burst.
 
-Confirm two Ready pods with `kubectl -n oke-lab get pods -l app=hello-oke`. Keep Grafana at **Last 30 minutes**: rate should approach baseline and proxy count follow scale-in, retaining the peak. Prometheus retains two hours of data unless its pod is replaced. If blocked at minute 55, record the state and ask for help.
+Confirm two Ready pods with `kubectl -n oke-lab get pods -l app=hello-oke`. Keep Grafana at **Last 30 minutes**: rate should approach baseline and proxy count follow scale-in, retaining the peak. Prometheus retains two hours of data unless its pod is replaced. If fewer than 10 minutes remain before the Luna session expires, record the current state, confirm burst mode is reset, stop the watch, and ask the instructor for help.
 
 **Optional HPA checkpoint:** record initial, peak, and final HPA replicas. Completion requires observed growth above two, HPA and Ready app pods both returning to two, and `traffic.loadEnabled=false`. Record both counts as evidence rather than relying on the dashboard alone, and explain any lag in proxy count. If blocked, mark the extension as blocked; this does not invalidate completed core work. See the [HPA guide](https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/) for metrics and stabilization.
 
 ## 7. Optional: observe pod recovery — 5 minutes
 
-This extension does not require HPA. Start after step 5, only if at least five minutes remain before debrief; otherwise skip to step 8. If you also tried HPA, first finish its load reset and return to two Ready app pods. Leave baseline traffic running. Predict whether deleting one pod changes desired replicas, then delete **one app pod**, not its Deployment:
+This extension does not require HPA. Start after step 5, only if at least 15 minutes remain before the Luna session expires, including 10 minutes reserved for debrief; otherwise skip to step 8. If you also tried HPA, first finish its load reset and return to two Ready app pods. Leave baseline traffic running. Predict whether deleting one pod changes desired replicas, then delete **one app pod**, not its Deployment:
 
 ```bash
 POD_TO_REPLACE=$(kubectl -n oke-lab get pods -l app=hello-oke -o jsonpath='{.items[0].metadata.name}')
@@ -607,12 +607,12 @@ helm get values hello-oke --namespace oke-lab --all
 
 `--all` includes defaults, even if you stopped before enabling load. Confirm `traffic.loadEnabled: false`. If it is still true, run step 6's load-reset command before leaving and ask for help if it fails. Students who skipped HPA do not need this check; burst mode was never enabled.
 
-Stop watches and dashboard forwards with Ctrl+C; this leaves the releases and baseline generator running. Discuss your [sheet and debrief](docs/completion-sheet.md) with a partner or instructor, and report any blocked core or optional checkpoint honestly.
+Stop watches and dashboard forwards with Ctrl+C; this leaves the releases and baseline generator running. Discuss your [sheet and debrief](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/completion-sheet.md) with a partner or instructor, and report any blocked core or optional checkpoint honestly.
 
 
 ## Appendix A: Troubleshooting
 
-Use the matching symptom, then return to your lab step. Appendix links open the matching section of this README; offline, scroll to the heading. These are optional diagnostics; also see the [full troubleshooting guide](docs/troubleshooting.md).
+Use the matching symptom, then return to your lab step. Appendix links open the matching section of this README; offline, scroll to the heading. These are optional diagnostics; also see the [full troubleshooting guide](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/troubleshooting.md).
 
 ### Copy and paste in Luna
 
@@ -646,7 +646,7 @@ Correct the first `FAIL` before rerunning preflight; the script stops there with
 
 - Missing repository files: return to the checkout root or ask for the complete checkout.
 - Missing tool or unsupported kubectl version: ask the instructor to check the actual Bash `PATH`; do not run `scripts/ci-tools.sh` on the desktop.
-- Missing kubeconfig, wrong context, or authentication failure: follow [cluster access](docs/cluster-access.md#verify-the-selected-file-and-context).
+- Missing kubeconfig, wrong context, or authentication failure: follow [cluster access](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/cluster-access.md#verify-the-selected-file-and-context).
 - Workers or resource metrics not ready: ask the instructor to check provisioning and the managed Metrics Server add-on. Do not resize the node pool or reinstall add-ons.
 
 ### Fresh-terminal setup errors
@@ -662,7 +662,7 @@ unset KUBECONFIG
 kubectl config current-context
 ```
 
-Stop if changing directory or loading variables fails, or the context is not your lab cluster. If you used a different checkout directory, substitute that path. Keep any required OCI authentication settings from [cluster access](docs/cluster-access.md#generate-your-kubeconfig-on-the-desktop).
+Stop if changing directory or loading variables fails, or the context is not your lab cluster. If you used a different checkout directory, substitute that path. Keep any required OCI authentication settings from [cluster access](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/cluster-access.md#generate-your-kubeconfig-on-the-desktop).
 
 If the app is already deployed, also restore its public IP variable:
 
@@ -674,7 +674,7 @@ echo "$APP_IP"
 Continue only when an IP is displayed. Terminals 2 and 3 need the connection settings, but not the chart-version or `APP_IP` variables.
 
 - `path "./charts/oke-mesh-app" not found`: the relative chart path is wrong for your current directory. Return to the repository root, where `README.md`, `charts/`, and `helm/` are located.
-- Connection refused at `localhost:8080`: usually no usable cluster configuration was selected. Follow [cluster access](docs/cluster-access.md#verify-the-selected-file-and-context); changing directories alone does not select a cluster.
+- Connection refused at `localhost:8080`: usually no usable cluster configuration was selected. Follow [cluster access](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/cluster-access.md#verify-the-selected-file-and-context); changing directories alone does not select a cluster.
 - `zsh: command not found: #` or `Ctrl+C`: use the lab's Bash terminal, or omit lines beginning with `#` when pasting into interactive zsh. **Ctrl+C is a keyboard shortcut**, not a command to paste.
 
 Run Helm in terminal 1 and forwards separately. Fix directory and connection errors individually; do not reinstall the lab to fix terminal setup.
@@ -709,7 +709,7 @@ curl --fail --silent --show-error --max-time 5 \
 
 Expect Grafana `"database": "ok"` and `Kiali HTTP 200`. These check dashboard access, not app health. For refusal, check the listener; for timeouts/resets, inspect the forward's terminal. If both pass, refresh the correct browser URL instead of starting duplicate forwards.
 
-**3. Restore a stopped or broken forward.** Verify `kubectl config current-context` using the prepared kubeconfig and OCI settings. Stop on a wrong context; fix [cluster access](docs/cluster-access.md#verify-the-selected-file-and-context) for authentication or `localhost:8080` errors, rather than reinstalling dashboards.
+**3. Restore a stopped or broken forward.** Verify `kubectl config current-context` using the prepared kubeconfig and OCI settings. Stop on a wrong context; fix [cluster access](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/cluster-access.md#verify-the-selected-file-and-context) for authentication or `localhost:8080` errors, rather than reinstalling dashboards.
 
 Press **Ctrl+C in the broken forward's own terminal**; do not kill unrelated processes. Rerun only the affected command and leave it running:
 
@@ -743,7 +743,7 @@ Open **http://127.0.0.1:20002/kiali/** or **http://127.0.0.1:13001/d/oke-lab**. 
 
 ### Kiali health warnings
 
-If Kiali shows **Degraded**, hover over the indicator to identify the affected component. The label alone does not prove a probe failure, and healthy pods do not guarantee healthy requests. Use the [read-only health checks](docs/troubleshooting.md#kiali-shows-degraded-or-not-ready) to compare pod readiness with request errors. Scaling warnings may clear; do not disable probes or restart healthy pods to clear a badge.
+If Kiali shows **Degraded**, hover over the indicator to identify the affected component. The label alone does not prove a probe failure, and healthy pods do not guarantee healthy requests. Use the [read-only health checks](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/troubleshooting.md#kiali-shows-degraded-or-not-ready) to compare pod readiness with request errors. Scaling warnings may clear; do not disable probes or restart healthy pods to clear a badge.
 
 ### Grafana repeatedly stops responding
 
@@ -755,7 +755,7 @@ kubectl -n istio-system describe pods -l app.kubernetes.io/name=grafana
 kubectl -n istio-system top pods -l app.kubernetes.io/name=grafana --containers
 ```
 
-Record restart count and `Last State` before asking the instructor. `OOMKilled` confirms a memory kill; exit code `137` alone does not. Adding a worker cannot raise this container's memory limit. See the [memory troubleshooting notes](docs/troubleshooting.md#grafana-memory-and-repeated-restarts); do not disable probes or enlarge the node pool.
+Record restart count and `Last State` before asking the instructor. `OOMKilled` confirms a memory kill; exit code `137` alone does not. Adding a worker cannot raise this container's memory limit. See the [memory troubleshooting notes](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/troubleshooting.md#grafana-memory-and-repeated-restarts); do not disable probes or enlarge the node pool.
 
 ### Repeating the manual-scaling exercise
 
@@ -808,4 +808,4 @@ kubectl -n oke-lab describe pods -l app=hello-oke-traffic
 
 Find the `traffic` container and its `istio-proxy`, check their state and restart counts, then read **Events** for warnings. The generator calls `http://hello-oke:80/` inside the cluster; it does not use the public `APP_IP`. Its logs print the application's responses. For request errors, compare those logs with the readiness of the application pods.
 
-For instructors: [delivery notes, preparation, and release checklist](docs/instructor-guide.md).
+For instructors: [delivery notes, preparation, and release checklist](https://github.com/chiphwang1/oke-console-bootcamp/blob/console-lab-2026-10-05.4/docs/instructor-guide.md).
