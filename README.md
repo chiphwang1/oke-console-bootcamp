@@ -2,7 +2,7 @@
 
 In this lab, you create an Oracle Kubernetes Engine (OKE) cluster through the OCI Console, then deploy, monitor, and scale an application on it. You'll deploy an application with Helm, observe its traffic and performance with Istio, Prometheus, Kiali, and Grafana, and change the number of application replicas manually. These are commonly used tools and practices for managing applications on Kubernetes. Autoscaling and pod recovery are optional extensions.
 
-Luna allocates your temporary OCI account, compartment, region, and desktop. The new GitLab pipeline checks that allocation. **You create the cluster, networking, and worker nodes in the Console during this lab.**
+Luna allocates your temporary OCI account, compartment, region, and desktop. The new GitLab pipeline checks that allocation. **During this lab, you use OKE’s Quick Create (quickstart) workflow in the OCI Console to create the cluster, networking, and worker nodes.**
 
 Allow **90–120 minutes of hands-on time**, plus an optional 30-minute lecture. Cluster provisioning time and regional capacity vary; this schedule needs a classroom pilot.
 
@@ -24,7 +24,7 @@ If time permits, use the **Horizontal Pod Autoscaler (HPA)** to adjust replicas 
 
 Run commands in a **Bash terminal on the Luna desktop**. Keep session credentials private.
 
-Materials revision: `console-lab-2026-10-05.1`. Your checkout and Luna instructions must show this same revision.
+Materials revision: `console-lab-2026-10-05.2`. Your checkout and Luna instructions must show this same revision.
 
 Record checkpoints in the [completion sheet](docs/completion-sheet.md).
 
@@ -87,7 +87,7 @@ Use each code block's **Copy** button, then **Edit → Paste** in the Luna termi
 In a **Bash terminal** on your Luna desktop, download the lab repository. Keep this window open as **terminal 1**:
 
 ```bash
-git clone --branch console-lab-2026-10-05.1 --single-branch \
+git clone --branch console-lab-2026-10-05.2 --single-branch \
   https://github.com/chiphwang1/oke-console-bootcamp.git "$HOME/oke-console-bootcamp" &&
   cd "$HOME/oke-console-bootcamp"
 ```

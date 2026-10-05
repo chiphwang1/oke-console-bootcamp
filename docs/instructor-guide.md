@@ -4,7 +4,7 @@ This lab teaches students to create their own OKE cluster before deploying the e
 
 ## New project setup
 
-Use [the new GitLab allocation project](https://gitlab.hap.demo.us-phoenix-1.oci.oraclecloud.com/luna-labs/ospa/oke-console-bootcamp) and [new GitHub learner repository](https://github.com/chiphwang1/oke-console-bootcamp). Publish the same `console-lab-2026-10-05.1` tag to both. Verify unauthenticated access to the GitHub tag and a fresh clone before class. Point a new Luna lab's content/allocation settings at the new GitLab project following [CI setup](gitlab-ci.md).
+Use [the new GitLab allocation project](https://gitlab.hap.demo.us-phoenix-1.oci.oraclecloud.com/luna-labs/ospa/oke-console-bootcamp) and [new GitHub learner repository](https://github.com/chiphwang1/oke-console-bootcamp). Publish the same `console-lab-2026-10-05.2` tag to both. Verify unauthenticated access to the GitHub tag and a fresh clone before class. Point a new Luna lab's content/allocation settings at the new GitLab project following [CI setup](gitlab-ci.md).
 
 Luna provides the desktop, temporary identity, and compartment. GitLab validates the allocation; students create the OKE/network/worker resources. The CI job's successful read requests do not prove write permissions, quota, or capacity. No Terraform provider, state, plan, or OCI credentials from the existing project should be copied.
 
